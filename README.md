@@ -12,3 +12,5 @@ In this tutorial ([hopfield_networks.ipynb](hopfield_networks.ipynb)) - designed
 Flags data is pickled inside `flags_of_africa.pickle`. This will be downloaded automatically within the script. 
 
 We recommend cloning and running on your local IDE (it isn't compute heavy and won't require GPUs), but you can also run remotely on Google colab here [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TomGeorge1234/HopfieldNetworkTutorial/blob/main/hopfield_networks.ipynb).
+
+This lives as a submodule in the TReNDs teaching repo (test)
