@@ -2,16 +2,19 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation
-import copy 
+import copy
+
 plt.rcParams["animation.html"] = "jshtml"
 
 
 class BaseHopfieldNetwork:
     """Base class for our Hopfield Network (Modern) Hopfield Network"""
-    def __init__(self,patterns_dict):
-        """Initialises the Hopfield network with a set of patterns. It loads 
-        Args: 
-            • patterns: a dictionary containing the patterns to be stored in the network labelled by their names. Patterns can be any shape, they will be flattened into vectors during initialisation."""
+
+    def __init__(self, patterns_dict):
+        """Initialises the Hopfield network with a set of patterns. It loads
+        Args:
+            • patterns: a dictionary containing the patterns to be stored in the network labelled by their names. Patterns can be any shape, they will be flattened into vectors during initialisation.
+        """
 
         # Convert the patterns dictionary into a an array of flattened patterns
         self.patterns_dict = patterns_dict
@@ -21,29 +24,32 @@ class BaseHopfieldNetwork:
         # Some useful variables
         self.N_neurons = self.patterns[0].size
         self.N_patterns = self.patterns_dict.__len__()
-        # Flatten the patterns into a matrix of shape (N_patterns, N_neurons) 
-        self.flattened_patterns = np.reshape(self.patterns,(self.N_patterns,self.N_neurons)) 
+        # Flatten the patterns into a matrix of shape (N_patterns, N_neurons)
+        self.flattened_patterns = np.reshape(
+            self.patterns, (self.N_patterns, self.N_neurons)
+        )
 
         # Initialises a history dictionary
-        self.history = {'state':[],'similarities':[],'energy':[]}  
-        
+        self.history = {"state": [], "similarities": [], "energy": []}
+
         # Initialise the weights and state of the network
         # =================== YOUR CODE HERE ==============================
         self.w = NotImplemented  # <-- YOU WILL NEED TO WRITE THIS YOURSELF
         # =================================================================
         # =================== SOLUTION ==============================
-        self.w = self.flattened_patterns.T @ self.flattened_patterns 
+        self.w = self.flattened_patterns.T @ self.flattened_patterns
         # ===========================================================
 
-        self.set_state(random=True) #initialises the state of the network 
-        return 
-
+        self.set_state(random=True)  # initialises the state of the network
+        return
 
     # =================== INITIALISE AND UPDATE NETWORK STATE  ======================
     def set_state(self, state=None, random=False):
         """Sets the state of the Hopfield network. If random = True, sets state to a random vector"""
-        if random: self.state = np.random.choice([-1,1],size=(self.N_neurons,))
-        else: self.state = state.reshape(-1)
+        if random:
+            self.state = np.random.choice([-1, 1], size=(self.N_neurons,))
+        else:
+            self.state = state.reshape(-1)
         self.save_history()
 
     def update_state(self):
@@ -57,18 +63,20 @@ class BaseHopfieldNetwork:
         self.similarities = self.get_similarities()
         self.energy = self.get_energy()
 
-        self.history['state'].append(copy.deepcopy(self.state))
-        self.history['similarities'].append(copy.deepcopy(self.similarities))
-        self.history['energy'].append(copy.deepcopy(self.energy))
+        self.history["state"].append(copy.deepcopy(self.state))
+        self.history["similarities"].append(copy.deepcopy(self.similarities))
+        self.history["energy"].append(copy.deepcopy(self.energy))
 
-    def get_similarities(self,state=None):
+    def get_similarities(self, state=None):
         """Compares the state (defaults to the current state of the network to all stored patterns and returns a measure of similary between the current state and each stored pattern.
         This measure is taken as cos(theta) where theta is the angle between the current state vector and the stored pattern vectorin N-D space.
         """
         state = self.state if state is None else state
-        return np.dot(self.flattened_patterns, self.state) / (np.linalg.norm(self.flattened_patterns,axis=1) * np.linalg.norm(self.state))
-    
-    def get_energy(self,state=None):
+        return np.dot(self.flattened_patterns, self.state) / (
+            np.linalg.norm(self.flattened_patterns, axis=1) * np.linalg.norm(self.state)
+        )
+
+    def get_energy(self, state=None):
         """Returns the energy of the network at a given state"""
         state = self.state if state is None else state
         return -0.5 * state @ self.w @ state
@@ -76,17 +84,19 @@ class BaseHopfieldNetwork:
     # =================== PLOTTING FUNCTIONS ==============================
     def visualise(self, steps_back=0, fig=None, ax=None, title=None):
         """Visualises the state of the Hopfield network n_steps back (defaults to steps_back=0, i.e. current state)"""
-        fig, ax = visualise_hopfield_network(self, steps_back=steps_back, fig=fig, ax=ax, title=title)
+        fig, ax = visualise_hopfield_network(
+            self, steps_back=steps_back, fig=fig, ax=ax, title=title
+        )
         return fig, ax
 
-    def plot_energy(self,n_steps=None):
+    def plot_energy(self, n_steps=None):
         """Plots the energy of the Hopfield network over time. n_steps=None defaults to _all_ steps"""
-        fig, ax = plot_energy(self,n_steps=n_steps)
+        fig, ax = plot_energy(self, n_steps=n_steps)
         return fig, ax
-    
-    def animate(self,n_steps=10):
-        """Animates the last n_steps of the Hopfield network"""
-        anim = animate_hopfield_network(self,n_steps=n_steps)
+
+    def animate(self, n_steps=10, fps=10):
+        """Animates the last n_steps of the Hopfield network. fps gives frames per socond of resulting animation"""
+        anim = animate_hopfield_network(self, n_steps=n_steps, fps=fps)
         return anim
 
 
@@ -142,7 +152,7 @@ def visualise_hopfield_network(
     """Create figure"""
     if ax is None:
         fig = plt.figure(figsize=(16, 4))
-        ax0 = fig.add_axes([0, 0, 1 / 2, 0.9])
+        ax0 = fig.add_axes([0, 0.02, 1 / 2, 0.88])
         ax1 = fig.add_axes([1 / 2, 1 / 3, 0.95 / 2, 0.9 - 1 / 3])
         ax = np.array([ax0, ax1])
 
@@ -197,7 +207,7 @@ def plot_energy(HopfieldNetwork, n_steps=None):
     fig, ax = plt.subplots(figsize=(5, 5))
     print("n_steps:", n_steps)
     if n_steps is None:
-        n_steps = len(HopfieldNetwork.history["energy"])-2
+        n_steps = len(HopfieldNetwork.history["energy"]) - 2
         print("n_steps:", n_steps)
     energy = HopfieldNetwork.history["energy"][-n_steps - 1 :]
     t = np.arange(-n_steps - 1, 0)
@@ -297,7 +307,7 @@ def plot_energy(HopfieldNetwork, n_steps=None):
     return fig, ax
 
 
-def animate_hopfield_network(HopfieldNetwork, n_steps=10):
+def animate_hopfield_network(HopfieldNetwork, n_steps=10, fps=10):
     """Makes an animation of the last n states (drawn from the history) of the Hopfield network
     Args:
         • HopfieldNetwork (HopfieldNetwork): the Hopfield network class storing the data to animate
@@ -318,7 +328,7 @@ def animate_hopfield_network(HopfieldNetwork, n_steps=10):
         plt.close()
 
     anim = matplotlib.animation.FuncAnimation(
-        fig, animate, fargs=(fig, ax), frames=n_steps, interval=100, blit=False
+        fig, animate, fargs=(fig, ax), frames=n_steps, interval=1000 / fps, blit=False
     )
     return anim
 
