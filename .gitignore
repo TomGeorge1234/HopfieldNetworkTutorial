@@ -1,0 +1,6 @@
+flag_pickler.ipynb
+flags_of_africa/
+figures/
+#jupyter cache files
+.ipynb_checkpoints/
+__pycache__/*
