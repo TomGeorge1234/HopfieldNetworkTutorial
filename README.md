@@ -1,3 +1,5 @@
+<span style="color:red"> ↑ Note!! Make sure you're on the `main` branch for the latest version of this tutorial. </span>
+
 # Hopfield Network Tutorial
 
 <img src="images/hfn.gif" width=850>
