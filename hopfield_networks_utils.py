@@ -356,6 +356,15 @@ def mask_pattern(pattern):
     return pattern * mask
 
 
+def merge_patterns(pattern1, pattern2):
+    """Merges two patterns together by taking the left half of pattern1 and the right half of pattern2"""
+    pattern1 = copy.deepcopy(pattern1)
+    pattern2 = copy.deepcopy(pattern2)
+    pattern1[:, pattern1.shape[1] // 2 :] = 0
+    pattern2[:, : pattern2.shape[1] // 2] = 0
+    return pattern1 + pattern2
+
+
 def softmax(x):
     return np.exp(x) / np.sum(np.exp(x))
 
