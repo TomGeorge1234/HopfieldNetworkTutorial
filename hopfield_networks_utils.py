@@ -47,15 +47,23 @@ class BaseHopfieldNetwork:
     def set_state(self, state=None, random=False):
         """Sets the state of the Hopfield network. If random = True, sets state to a random vector"""
         if random:
-            self.state = np.random.choice([-1, 1], size=(self.N_neurons,))
+            self.state = np.random.choice([-1.0, 1.0], size=(self.N_neurons,))
         else:
             self.state = state.reshape(-1)
         self.save_history()
 
-    def update_state(self):
-        """Updates the state of the Hopfield network"""
-        # =================== THIS HAS NOT BEEN WRITTEN< YOU WILL NEED TO WRITE THIS YOURSELF ==============================
-        raise NotImplementedError
+    def update_state(self, asynchronous=True):
+        """Updates the state of the Hopfield network and saves to history"""
+        # asyncronous updates one neuron at a time
+        if asynchronous == True:
+            i = np.random.randint(self.N_neurons)  # choose a random neuron
+            self.state[i] = np.sign(self.w[i, :] @ self.state)  # update the neuron
+
+        # synchronous updates all neurons at once
+        elif asynchronous == False:
+            self.state = np.sign(self.w @ self.state)
+
+        self.save_history()  # this saves the history of the network so we can analyse it later once it's all been done
 
     # =================== ANALYSIS AND HISTORY FUNCTIONS ======================
     def save_history(self):
@@ -94,9 +102,11 @@ class BaseHopfieldNetwork:
         fig, ax = plot_energy(self, n_steps=n_steps)
         return fig, ax
 
-    def animate(self, n_steps=10, fps=10):
+    def animate(self, n_steps=10, fps=10, animation_length_secs=5):
         """Animates the last n_steps of the Hopfield network. fps gives frames per socond of resulting animation"""
-        anim = animate_hopfield_network(self, n_steps=n_steps, fps=fps)
+        anim = animate_hopfield_network(
+            self, n_steps=n_steps, fps=fps, animation_length_secs=animation_length_secs
+        )
         return anim
 
 
@@ -307,12 +317,18 @@ def plot_energy(HopfieldNetwork, n_steps=None):
     return fig, ax
 
 
-def animate_hopfield_network(HopfieldNetwork, n_steps=10, fps=10):
+def animate_hopfield_network(
+    HopfieldNetwork, n_steps=10, fps=10, animation_length_secs=5
+):
     """Makes an animation of the last n states (drawn from the history) of the Hopfield network
     Args:
         • HopfieldNetwork (HopfieldNetwork): the Hopfield network class storing the data to animate
         • n_steps (int, optional): _description_. Defaults to 10.
     """
+
+    n_frames = int(animation_length_secs * fps)
+    steps_back_to_plot = np.linspace(0, n_steps, n_frames, dtype=int)
+
     fig, ax = HopfieldNetwork.visualise()
 
     def animate(i, fig, ax):
@@ -321,14 +337,14 @@ def animate_hopfield_network(HopfieldNetwork, n_steps=10, fps=10):
         """
         ax[0].clear()
         ax[1].clear()
-        steps_back = n_steps - i
+        steps_back = n_steps - steps_back_to_plot[i]
         fig, ax = HopfieldNetwork.visualise(steps_back=steps_back, fig=fig, ax=ax)
-        fig.suptitle("Step %d" % i)
+        fig.suptitle("Step %d" % steps_back_to_plot[i])
         # fig.set_tight_layout(True)
         plt.close()
 
     anim = matplotlib.animation.FuncAnimation(
-        fig, animate, fargs=(fig, ax), frames=n_steps, interval=1000 / fps, blit=False
+        fig, animate, fargs=(fig, ax), frames=n_frames, interval=1000 / fps, blit=False
     )
     return anim
 
