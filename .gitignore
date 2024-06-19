@@ -3,4 +3,5 @@ flags_of_africa/
 figures/
 #jupyter cache files
 .ipynb_checkpoints/
-__pycache__/*
+__pycache__/
+.DS_Store
